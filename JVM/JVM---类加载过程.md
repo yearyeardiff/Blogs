@@ -107,7 +107,7 @@ public static final int value = 123;//(final)
 从Java开发人员的角度来看，大部分Java程序一般会使用到以下三种系统提供的类加载器：
 
  1. 启动类加载器（Bootstrap ClassLoader）：负责加载JAVA_HOME\lib目录中并且能被虚拟机识别的类库到JVM内存中，如果名称不符合的类库即使放在lib目录中也不会被加载。该类加载器无法被Java程序直接引用。
- 2. 扩展类加载器（Extension ClassLoader）：该加载器主要是负责加载JAVA_HOME\lib\，该加载器可以被开发者直接使用。
+ 2. 扩展类加载器（Extension ClassLoader）：该加载器主要是负责加载JAVA_HOME\lib\ext，该加载器可以被开发者直接使用。
  3. 应用程序类加载器（Application ClassLoader）：该类加载器也称为系统类加载器，它负责加载用户类路径（Classpath）上所指定的类库，开发者可以直接使用该类加载器，如果应用程序中没有自定义过自己的类加载器，一般情况下这个就是程序中默认的类加载器。
  这些类加载器之间的关系如下图所示：
  
