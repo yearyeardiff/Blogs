@@ -244,7 +244,10 @@ if (hasInstAwareBpps) {
 
  - 创建AOP代理类AnnotaionAwareAspectJAutoProxyCreator
 
+优秀的博客：
+[开闭原则的表现-BeanPostProcessor扩展点-2][2]
  
 
 
   [1]: ./images/postProcessor.png "postProcessor"
+  [2]: http://jinnianshilongnian.iteye.com/blog/1492424
