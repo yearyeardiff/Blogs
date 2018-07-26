@@ -115,8 +115,6 @@ zch.crt  zch.csr  zch.key
 
 - cp (复制文件或目录)
 ``` tex?linenums
-[root@www ~]# cp [-adfilprsu] 来源档(source) 目标档(destination)
-[root@www ~]# cp [options] source1 source2 source3 .... directory
 选项与参数：
 -a  ：相当於 -pdr 的意思，至於 pdr 请参考下列说明；(常用)
 -d  ：若来源档为连结档的属性(link file)，则复制连结档属性而非文件本身；
@@ -128,141 +126,37 @@ zch.crt  zch.csr  zch.key
 -s  ：复制成为符号连结档 (symbolic link)，亦即『捷径』文件；
 -u  ：若 destination 比 source 旧才升级 destination ！
 
-[root@192 zch]# cp -a test1 temp
-[root@192 zch]# ls -ld temp
-drwxrwxr-x. 3 zch zch 18 7月  26 06:52 temp
-[root@192 zch]# su zch
-[zch@192 ~]$ ls -ld test1
-drwxrwxr-x. 3 zch zch 18 7月  26 06:52 test1
 ```
-
-- rm (移除文件或目录)
-
+- which (寻找『运行档』)
 ``` tex?linenums
-[root@www ~]# rm [-fir] 文件或目录
-选项与参数：
--f  ：就是 force 的意思，忽略不存在的文件，不会出现警告信息；
--i  ：互动模式，在删除前会询问使用者是否动作
--r  ：递回删除啊！最常用在目录的删除了！这是非常危险的选项！！！
+[root@www ~]# which [-a] command
+选项或参数：
+-a ：将所有由 PATH 目录中可以找到的命令均列出，而不止第一个被找到的命令名称
 
-[zch@192 ~]$ rm -i temp
-rm: 无法删除"temp": 是一个目录
-[zch@192 ~]$ rm -r temp  #删除temp目录以及下面所有的文件
-[zch@192 ~]$ ls
+[root@192 zch]# which ifconfig
+/usr/sbin/ifconfig
+[root@192 zch]# which ls
+alias ls='ls --color=auto'
+        /usr/bin/ls
+```
+- whereis (寻找特定文件)
+``` tex?linenums
+[root@www ~]# whereis [-bmsu] 文件或目录名
+选项与参数：
+-b    :只找 binary 格式的文件
+-m    :只找在说明档 manual 路径下的文件
+-s    :只找 source 来源文件
+-u    :搜寻不在上述三个项目当中的其他特殊文件
+
+[zch@192 ~]$ whereis ifconfig
+ifconfig: /usr/sbin/ifconfig /usr/share/man/man8/ifconfig.8.gz
+
+那么 whereis 到底是使用什么咚咚呢？为何搜寻的速度会比 find 快这么多？ 其实那也没有什么！这是因为 Linux 系统会将系统内的所有文件都记录在一个数据库文件里面， 而当使用 whereis 或者是底下要说的 locate 时，都会以此数据库文件的内容为准， 因此，有的时后你还会发现使用这两个运行档时，会找到已经被杀掉的文件！ 而且也找不到最新的刚刚创建的文件呢！这就是因为这两个命令是由数据库当中的结果去搜寻文件的所在啊！ 更多与这个数据库有关的说明，请参考下列的 locate 命令。
 ```
 
-- mv (移动文件与目录，或更名)
-
+- find
 ```tex?linenums
-[root@www ~]# mv [-fiu] source destination
-[root@www ~]# mv [options] source1 source2 source3 .... directory
-选项与参数：
--f  ：force 强制的意思，如果目标文件已经存在，不会询问而直接覆盖；
--i  ：若目标文件 (destination) 已经存在时，就会询问是否覆盖！
--u  ：若目标文件已经存在，且 source 比较新，才会升级 (update)
+[root@www ~]# find [PATH] [option] [action]
 
-# 可以用来重命名
-[zch@192 ~]$ mv test1 temp 
-[zch@192 ~]$ ls
-temp  VMwareTools-10.2.5-8068393.tar.gz  vmware-tools-distrib
+   
 ```
-
-- more (一页一页翻动)
-``` tex?linenums
-[root@www ~]# more /etc/man.config
-#
-# Generated automatically from man.conf.in by the
-# configure script.
-#
-# man.conf from man-1.6d
-....(中间省略)....
---More--(28%)  <== 重点在这一行喔！你的光标也会在这里等待你的命令
-
-
-
-空白键 (space)：代表向下翻一页；
-Enter         ：代表向下翻『一行』；
-/字串         ：代表在这个显示的内容当中，向下搜寻『字串』这个关键字；
-:f            ：立刻显示出档名以及目前显示的行数；
-q             ：代表立刻离开 more ，不再显示该文件内容。
-b 或 [ctrl]-b ：代表往回翻页，不过这动作只对文件有用，对管线无用。
-```
-
-- less (一页一页翻动)
-``` tex?linenums
-less 的用法比起 more 又更加的有弹性，怎么说呢？在 more 的时候，我们并没有办法向前面翻， 只能往后面看，但若使用了 less 时，呵呵！就可以使用 [pageup] [pagedown] 等按键的功能来往前往后翻看文件，你瞧，是不是更容易使用来观看一个文件的内容了呢！
-
-除此之外，在 less 里头可以拥有更多的『搜寻』功能喔！不止可以向下搜寻，也可以向上搜寻～ 实在是很不错用～基本上，可以输入的命令有：
-
-空白键    ：向下翻动一页；
-[pagedown]：向下翻动一页；
-[pageup]  ：向上翻动一页；
-/字串     ：向下搜寻『字串』的功能；
-?字串     ：向上搜寻『字串』的功能；
-n         ：重复前一个搜寻 (与 / 或 ? 有关！)
-N         ：反向的重复前一个搜寻 (与 / 或 ? 有关！)
-q         ：离开 less 这个程序；
-```
-
-- head (取出前面几行)
-
-``` tex?linenums
-
-[root@www ~]# head [-n number] 文件 
-选项与参数：
--n  ：后面接数字，代表显示几行的意思
-
-[root@www ~]# head /etc/man.config
-# 默认的情况中，显示前面十行！若要显示前 20 行，就得要这样：
-[root@www ~]# head -n 20 /etc/man.config
-
-范例：如果后面100行的数据都不列印，只列印/etc/man.config的前面几行，该如何是好？
-[root@www ~]# head -n -100 /etc/man.config
-```
-
-- tail (取出后面几行)
-```tex?linenums
-[root@www ~]# tail [-n number] 文件 
-选项与参数：
--n  ：后面接数字，代表显示几行的意思
--f  ：表示持续侦测后面所接的档名，要等到按下[ctrl]-c才会结束tail的侦测
-
-[root@www ~]# tail /etc/man.config
-# 默认的情况中，显示最后的十行！若要显示最后的 20 行，就得要这样：
-[root@www ~]# tail -n 20 /etc/man.config
-
-范例一：如果不知道/etc/man.config有几行，却只想列出100行以后的数据时？
-[root@www ~]# tail -n +100 /etc/man.config
-
-范例二：持续侦测/var/log/messages的内容
-[root@www ~]# tail -f /var/log/messages
-  <==要等到输入[crtl]-c之后才会离开tail这个命令的侦测！
-```
-
-- touch(修改文件时间或建置新档)
-```tex?linenums
-[root@www ~]# touch [-acdmt] 文件
-选项与参数：
--a  ：仅修订 access time；
--c  ：仅修改文件的时间，若该文件不存在则不创建新文件；
--d  ：后面可以接欲修订的日期而不用目前的日期，也可以使用 --date="日期或时间"
--m  ：仅修改 mtime ；
--t  ：后面可以接欲修订的时间而不用目前的时间，格式为[YYMMDDhhmm]
-
-范例一：新建一个空的文件并观察时间
-[root@www ~]# cd /tmp
-[root@www tmp]# touch testtouch
-[root@www tmp]# ls -l testtouch
--rw-r--r-- 1 root root 0 Sep 25 21:09 testtouch
-# 注意到，这个文件的大小是 0 呢！在默认的状态下，如果 touch 后面有接文件，
-# 则该文件的三个时间 (atime/ctime/mtime) 都会升级为目前的时间。若该文件不存在，
-# 则会主动的创建一个新的空的文件喔！例如上面这个例子！
-
-范例二：将 ~/.bashrc 复制成为 bashrc，假设复制完全的属性，检查其日期
-[root@www tmp]# cp -a ~/.bashrc bashrc
-[root@www tmp]# ll bashrc; ll --time=atime bashrc; ll --time=ctime bashrc
--rw-r--r-- 1 root root 176 Jan  6  2007 bashrc  <==这是 mtime
--rw-r--r-- 1 root root 176 Sep 25 21:11 bashrc  <==这是 atime
--rw-r--r-- 1 root root 176 Sep 25 21:12 bashrc  <==这是 ctime
-```
-
