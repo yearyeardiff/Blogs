@@ -157,6 +157,42 @@ ifconfig: /usr/sbin/ifconfig /usr/share/man/man8/ifconfig.8.gz
 - find
 ```tex?linenums
 [root@www ~]# find [PATH] [option] [action]
+# man find 
 
-   
+# 查找名为test1的文件
+[zch@192 ~]$ find -name test1
+./test/test1
+./test1
+
+# 查找名为test1的文件 并 查看详细信息
+[zch@192 ~]$ find -name test1 | xargs ls -ld
+drwxr-xr-x. 4 root root 30 7月  27 10:36 ./test1
+-rw-r--r--. 1 root root  0 7月  27 10:37 ./test/test1
+
+# 查找名为test1的文本文件
+[zch@192 ~]$ find -name test1 -type f
+./test/test1
+# 查找名为test1的目录
+[zch@192 ~]$ find -name test1 -type d
+./test1
+
+# 查找一天之内变更过的文件
+[zch@192 ~]$ find -mtime 0 | xargs ls -ld
+drwx------. 18 zch  zch  4096 7月  27 10:36 .
+drwxrwxr-x.  2 zch  zch    50 7月  27 10:44 ./.cache/abrt
+-rw-------.  1 zch  zch    11 7月  27 10:44 ./.cache/abrt/lastnotification
+drwxr-xr-x.  2 root root   31 7月  27 10:37 ./test
+drwxr-xr-x.  4 root root   30 7月  27 10:36 ./test1
+-rw-r--r--.  1 root root    0 7月  27 10:36 ./test1.txt
+-rw-r--r--.  1 root root    0 7月  27 10:37 ./test/test1
+[zch@192 ~]$ date
+2018年 07月 27日 星期五 10:57:56 CST
+
+# 正则 查找后缀为txt的文件
+[zch@192 ~]$ find -regex .*\.txt
+./.mozilla/firefox/mloqpkz5.default/revocations.txt
+./dev-software/openresty-1.13.6.1/build/lua-cjson-2.1.0.5/CMakeLists.txt
+./dev-software/openresty-1.13.6.1/build/lua-cjson-2.1.0.5/performance.txt
+./test/hh.txt
+./test1.txt  
 ```

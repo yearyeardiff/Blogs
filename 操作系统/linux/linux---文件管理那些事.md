@@ -192,8 +192,61 @@ PATH(一定是大写)这个变量的内容是由一堆目录所组成的，每�
    -perm +mode ：搜寻文件权限『包含任一 mode 的权限』的文件，举例来说，我们搜寻
                  -rwxr-xr-x ，亦即 -perm +755 时，但一个文件属性为 -rw-------
                  也会被列出来，因为他有 -rw.... 的属性存在！
+				 
+# 找出档名为 test1 这个文件
+[zch@192 ~]$ find . -name test1
+./test1
+# 这个 -type 的属性也很有帮助喔！
+[root@192 zch]# touch test/test1
+[root@192 zch]# find -name test1 -type d #查找名为test1的目录
+./test1
+[root@192 zch]# find -name test1 -type f #查找名为test1的文件
+./test/test1
+
+# 正则查询
+[zch@192 ~]$ find . -regex .*txt
+./.mozilla/firefox/mloqpkz5.default/revocations.txt
+./.mozilla/firefox/mloqpkz5.default/SiteSecurityServiceState.txt
+./test/hh.txt
+./test1.txt
+
 ```
 
+# 磁盘与文件系统管理
+## EXT2文件系统
+### 索引式文件系统
+文件系统通常会将权限与属性放置到 inode 中，至于实际数据则放置到 data block 区块中。 另外，还有一个超级区块 (superblock) 会记录整个文件系统的整体信息，包括 inode 与 block 的总量、使用量、剩余量等。
+每个 inode 与 block 都有编号，至于这三个数据的意义可以简略说明如下：
+
+- superblock：记录此 filesystem 的整体信息，包括inode/block的总量、使用量、剩余量， 以及文件系统的格式与相关信息等；
+- inode：记录文件的属性，一个文件占用一个inode，同时记录此文件的数据所在的 block 号码；
+- block：实际记录文件的内容，若文件太大时，会占用多个 block 。
+
+由于每个 inode 与 block 都有编号，而每个文件都会占用一个 inode ，inode 内则有文件数据放置的 block 号码。 因此，我们可以知道的是，如果能够找到文件的 inode 的话，那么自然就会知道这个文件所放置数据的 block 号码， 当然也就能够读出该文件的实际数据了。这是个比较有效率的作法，因为如此一来我们的磁盘就能够在短时间内读取出全部的数据， 读写的效能比较好啰。
+我们将 inode 与 block 区块用图解来说明一下：
+
+![inode/block 数据存取示意图](./images/1532660817441.png)
+这种数据存取的方法我们称为索引式文件系统(indexed allocation)
+###  EXT2 文件系统(inode)
+前一小节我们知道 filesystem 里面可能含有的 inode/block/superblock 等。为什么要谈这个呢？因为标准的 Linux 文件系统 Ext2 就是使用这种 inode 为基础的文件系统啦！
+
+而如同前一小节所说的，inode 的内容在记录文件的权限与相关属性，至于 block 区块则是在记录文件的实际内容。 而且文件系统一开始就将 inode 与 block 规划好了，除非重新格式化(或者利用 resize2fs 等命令变更文件系统大小)，否则 inode 与 block 固定后就不再变动。但是如果仔细考虑一下，如果我的文件系统高达数百GB时， 那么将所有的 inode 与 block 通通放置在一起将是很不智的决定，因为 inode 与 block 的数量太庞大，不容易管理。
+
+为此之故，因此 Ext2 文件系统在格式化的时候基本上是区分为多个区块群组 (block group) 的，每个区块群组都有独立的 inode/block/superblock 系统。感觉上就好像我们在当兵时，一个营里面有分成数个连，每个连有自己的联络系统， 但最终都向营部回报连上最正确的信息一般！这样分成一群群的比较好管理啦！整个来说，Ext2 格式化后有点像底下这样：
+
+![ext2文件系统示意图](./images/1532661031595.png)
+
+#### data block (数据区块)
+data block 是用来放置文件内容数据地方，在 Ext2 文件系统中所支持的 block 大小有 1K, 2K 及 4K 三种而已。在格式化时 block 的大小就固定了，且每个 block 都有编号，以方便 inode 的记录啦。 不过要注意的是，由于 block 大小的差异，会导致该文件系统能够支持的最大磁盘容量与最大单一文件容量并不相同。 因为 block 大小而产生的 Ext2 文件系统限制如下：
+
+![data block size](./images/1532669617731.png)
+
+你需要注意的是，虽然 Ext2 已经能够支持大于 2GB 以上的单一文件容量，不过某些应用程序依然使用旧的限制， 也就是说，某些程序只能够捉到小于 2GB 以下的文件而已，这就跟文件系统无关了！
+除此之外 Ext2 文件系统的 block 还有什么限制呢？有的！基本限制如下：
+- 原则上，block 的大小与数量在格式化完就不能够再改变了(除非重新格式化)；
+- 每个 block 内最多只能够放置一个文件的数据；
+- 承上，如果文件大于 block 的大小，则一个文件会占用多个 block 数量；
+- 承上，若文件小于 block ，则该 block 的剩余容量就不能够再被使用了(磁盘空间会浪费)。
 
 # 参考文档
 - [鸟哥的linux私房菜](http://cn.linux.vbird.org/linux_basic/linux_basic.php)
