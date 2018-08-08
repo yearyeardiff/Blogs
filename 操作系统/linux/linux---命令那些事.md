@@ -474,3 +474,176 @@ fi
 
 # User specific aliases and functions
 ```
+
+# 管道命令
+> 这个管线命令『 | 』仅能处理经由前面一个命令传来的正确信息，也就是 standard output 的信息，对于 stdandard error 并没有直接处理的能力。那么整体的管线命令可以使用下图表示：
+
+![管线命令的处理示意图](./images/1533708522895.jpg)
+在每个管线后面接的第一个数据必定是『命令』喔！而且这个命令必须要能够接受 standard input 的数据才行，这样的命令才可以是为『管线命令』，例如 less, more, head, tail 等都是可以接受 standard input 的管线命令啦。至于例如 ls, cp, mv 等就不是管线命令了！因为 ls, cp, mv 并不会接受来自 stdin 的数据。 也就是说，管线命令主要有两个比较需要注意的地方：
+
+- 管线命令仅会处理 standard output，对于 standard error output 会予以忽略
+- 管线命令必须要能够接受来自前一个命令的数据成为 standard input 继续处理才行。
+## 选取命令
+>什么是撷取命令啊？说穿了，就是将一段数据经过分析后，取出我们所想要的。或者是经由分析关键词，取得我们所想要的那一行！ 不过，要注意的是，一般来说，撷取信息通常是针对『一行一行』来分析的
+
+### cut
+
+```tex?linenums
+[root@www ~]# cut -d'分隔字符' -f fields <==用于有特定分隔字符
+[root@www ~]# cut -c 字符区间            <==用于排列整齐的信息
+选项与参数：
+-d  ：后面接分隔字符。与 -f 一起使用；
+-f  ：依据 -d 的分隔字符将一段信息分割成为数段，用 -f 取出第几段的意思；
+-c  ：以字符 (characters) 的单位取出固定字符区间；
+
+#将 PATH 变量取出，我要找出第一个路径。
+[zch@localhost ~]$ echo $PATH
+/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/zch/.local/bin:/home/zch/bin
+[zch@localhost ~]$ echo $PATH | cut -d':' -f 1
+/usr/local/bin
+[zch@localhost ~]$ echo $PATH | cut -d':' -f 1,2        #1,2
+/usr/local/bin:/usr/bin
+[zch@localhost ~]$ echo $PATH | cut -d':' -f 1-3        #1~3
+/usr/local/bin:/usr/bin:/usr/local/sbin
+
+
+#将 export 输出的信息，取得第 12 字符以后的所有字符串
+[root@www ~]# export
+declare -x HISTCONTROL="ignoredups"
+declare -x HISTSIZE="1000"
+declare -x HOME="/home/zch"
+declare -x HOSTNAME="localhost.localdomain"
+declare -x LANG="zh_CN.UTF-8"
+declare -x LC_CTYPE="zh_CN.UTF-8"
+declare -x LESSOPEN="||/usr/bin/lesspipe.sh %s"
+declare -x LOGNAME="zch"
+# 每个数据都是排列整齐的输出！如果我们不想要『 declare -x 』时
+# 我们还可以指定某个范围的值，例如第 12-20 的字符，就是 cut -c 12-20
+zch@localhost ~]$ export | cut -c 12-
+HISTCONTROL="ignoredups"
+HISTSIZE="1000"
+HOME="/home/zch"
+HOSTNAME="localhost.localdomain"
+LANG="zh_CN.UTF-8"
+LC_CTYPE="zh_CN.UTF-8"
+LESSOPEN="||/usr/bin/lesspipe.sh %s"
+LOGNAME="zch"
+```
+### grep
+>刚刚的 cut 是将一行信息当中，取出某部分我们想要的，而 grep 则是分析一行信息， 若当中有我们所需要的信息，就将该行拿出来～简单的语法是这样的：
+
+```tex?linenums
+[root@www ~]# grep [-acinv] [--color=auto] '搜寻字符串' filename
+选项与参数：
+-a ：将 binary 文件以 text 文件的方式搜寻数据
+-c ：计算找到 '搜寻字符串' 的次数
+-i ：忽略大小写的不同，所以大小写视为相同
+-n ：顺便输出行号
+-v ：反向选择，亦即显示出没有 '搜寻字符串' 内容的那一行！
+--color=auto ：可以将找到的关键词部分加上颜色的显示喔！
+
+# grep 对指定文件查询字符串
+[zch@localhost ~]$ grep bashrc ./list
+# .bashrc
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+[zch@localhost ~]$ cat list
+# .bashrc
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+[zch@localhost ~]$ grep bashrc ./list
+# .bashrc
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+	
+# 将 last 当中，有出现 zch 的那一行就取出来；
+[zch@localhost ~]$ last | grep 'zch'
+zch      pts/2        172.16.98.1      Wed Aug  8 10:31   still logged in
+zch      pts/1        172.16.98.1      Wed Aug  8 09:56 - 11:58  (02:01)
+# 只要筛选没有zch的记录
+[zch@localhost ~]$ last | grep -v zch'
+(unknown :0           :0               Wed Aug  8 09:53 - 09:53  (00:00)
+reboot   system boot  3.10.0-327.el7.x Wed Aug  8 09:52 - 15:24  (05:32)
+
+wtmp begins Wed Aug  8 09:52:25 2018
+```
+
+## 排序命令 sort, wc, uniq
+
+```tex?linenums
+[root@www ~]# wc [-lwm]
+选项与参数：
+-l  ：仅列出行；
+-w  ：仅列出多少字(英文单字)；
+-m  ：多少字符；
+
+# 输出的三个数字中，分别代表： 『行、字数、字符数』
+[zch@localhost ~]$ wc list
+ 11  36 231 list
+ 
+ # 统计文件数量
+ [zch@localhost ~]$ ls | wc -l
+12
+```
+## 双向重定向 tee
+
+![tee 的工作流程示意图](./images/1533716217738.jpg)
+> tee 会同时将数据流分送到文件去与屏幕 (screen)；而输出到屏幕的，其实就是 stdout ，可以让下个命令继续处理喔
+
+```tex?linenums
+[root@www ~]# tee [-a] file
+选项与参数：
+-a  ：以累加 (append) 的方式，将数据加入 file 当中！
+
+# 这个范例则是将 ll 的数据存一份到 ~/linux_test/ll.log ，同时屏幕也有输出信息！
+[zch@localhost ~]$ ll | tee ~/linux_test/ll.log | cat
+总用量 8
+-rw-rw-r--. 1 zch zch  37 8月   8 11:30 error.log
+drwxrwxr-x. 2 zch zch  36 8月   8 11:30 linux_test
+-rw-rw-r--. 1 zch zch 231 8月   8 13:44 list
+drwxr-xr-x. 2 zch zch   6 8月   8 09:53 公共
+drwxr-xr-x. 2 zch zch   6 8月   8 09:53 模板
+[zch@localhost ~]$ cat ~/linux_test/ll.log
+总用量 8
+-rw-rw-r--. 1 zch zch  37 8月   8 11:30 error.log
+drwxrwxr-x. 2 zch zch  36 8月   8 11:30 linux_test
+-rw-rw-r--. 1 zch zch 231 8月   8 13:44 list
+drwxr-xr-x. 2 zch zch   6 8月   8 09:53 公共
+drwxr-xr-x. 2 zch zch   6 8月   8 09:53 模板
+```
+## 字符转换命令 tr, col, join, paste, expand
+## 切割命令 split
+## 参数代换 xargs
+> xargs 可以读入 stdin 的数据，并且以空格符或断行字符作为分辨，将 stdin 的数据分隔成为 arguments 。 因为是以空格符作为分隔，所以，如果有一些档名或者是其他意义的名词内含有空格符的时候， xargs 可能就会误判了～
+
+```tex?linenums
+[root@www ~]# xargs [-0epn] command
+选项与参数：
+-0  ：如果输入的 stdin 含有特殊字符，例如 `, \, 空格键等等字符时，这个 -0 参数
+      可以将他还原成一般字符。这个参数可以用于特殊状态喔！
+-e  ：这个是 EOF (end of file) 的意思。后面可以接一个字符串，当 xargs 分析到
+      这个字符串时，就会停止继续工作！
+-p  ：在运行每个命令的 argument 时，都会询问使用者的意思；
+-n  ：后面接次数，每次 command 命令运行时，要使用几个参数的意思。看范例三。
+当 xargs 后面没有接任何的命令时，默认是以 echo 来进行输出喔！
+
+# xargs 没有接命令，echo输出
+[zch@localhost ~]$ find . -name error.log |xargs
+./error.log
+# 很多命令其实并不支持管线命令，因此我们可以透过 xargs 来提供该命令引用 standard input 之用
+[zch@localhost ~]$ find . -name error.log |xargs ls -l
+-rw-rw-r--. 1 zch zch 37 8月   8 11:30 ./error.log
+```
+## 关于减号-的用途
+> 在管线命令当中，常常会使用到前一个命令的 stdout 作为这次的 stdin ， **某些命令需要用到文件名 (例如 tar) 来进行处理时，该 stdin 与 stdout 可以利用减号 "-" 来替代**， 举例来说：
+```tex?linenums
+[root@www ~]# tar -cvf - /home | tar -xvf -
+```
+
+上面这个例子是说：『我将 /home 里面的文件给他打包，但打包的数据不是纪录到文件，而是传送到 stdout； 经过管线后，将 tar -cvf - /home 传送给后面的 tar -xvf - 』。后面的这个 - 则是取用前一个命令的 stdout， 因此，我们就不需要使用 file 了！这是很常见的例子喔！注意注意！
+
+ 
+
+
