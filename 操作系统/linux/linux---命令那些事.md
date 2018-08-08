@@ -1,9 +1,9 @@
 ---
-title: linux---命令那些事
+title: linux--命令那些事
 tags: linux
 grammar_cjkRuby: true
 ---
-
+# 常用命令
 - cd
 ``` tex?linenums
 [root@192 zch]# pwd
@@ -392,4 +392,85 @@ temp/test2/test3/
 temp/hh
 [zch@192 ~]$ ls ./temp2
 temp
+```
+# 数据流重导向 (Redirection)
+> 数据流重导向 (redirect) 由字面上的意思来看，好像就是将『数据给他传导到其他地方去』的样子？ 没错～数据流重导向就是将某个命令运行后应该要出现在屏幕上的数据， 给他传输到其他的地方
+
+![命令运行过程的数据传输情况](./images/1533697350348.jpg)
+
+## standard output 与 standard error output
+>简单的说，标准输出指的是『命令运行所回传的正确的信息』，而标准错误输出可理解为『 命令运行失败后，所回传的错误信息』
+
+标准输入　　(stdin) ：代码为 0 ，使用 < 或 << ；
+标准输出　　(stdout)：代码为 1 ，使用 > 或 >> ；
+标准错误输出(stderr)：代码为 2 ，使用 2> 或 2>> ；
+
+- 举例
+```tex?linenums
+# 输出重定向
+[zch@localhost ~]$ ll >> ./linux_test/ll.log
+[zch@localhost ~]$ cat ./linux_test/ll.log
+总用量 0
+drwxrwxr-x. 2 zch zch 19 8月   8 11:24 linux_test
+drwxr-xr-x. 2 zch zch  6 8月   8 09:53 公共
+drwxr-xr-x. 2 zch zch  6 8月   8 09:53 模板
+
+# 重导向 标准信息和错误信息
+[zch@localhost ~]$ find /home -name .bashrc 1>>./linux_test/result.log 2>>error.log
+[zch@localhost ~]$ cat ./linux_test/result.log
+/home/zch/.bashrc
+[zch@localhost ~]$ cat ./error.log
+find: ‘/home/test’: 权限不够
+```
+
+## /dev/null 垃圾桶黑洞装置与特殊写法
+```tex?linenums
+#将错误的数据丢弃，屏幕上显示正确的数据
+[zch@localhost ~]$ find /home -name .bashrc
+/home/zch/.bashrc
+find: ‘/home/test’: 权限不够
+[zch@localhost ~]$ find /home -name .bashrc 2>>/dev/null
+/home/zch/.bashrc
+```
+
+如果我要将正确与错误数据通通写入同一个文件去呢？这个时候就得要使用特殊的写法了！ 我们同样用底下的案例来说明：
+```tex?linenums
+# 错误
+[zch@localhost ~]$ find /home -name .bashrc > list 2> list
+[zch@localhost ~]$ cat list
+find: ‘/home/test’: 权限不够
+
+# 正确
+zch@localhost ~]$ find /home -name .bashrc > list 2>&1
+[zch@localhost ~]$ cat list
+/home/zch/.bashrc
+find: ‘/home/test’: 权限不够
+
+#正确
+[zch@localhost ~]$ find /home -name .bashrc &> list
+[zch@localhost ~]$ cat list
+/home/zch/.bashrc
+find: ‘/home/test’: 权限不够
+```
+
+上述表格第一行错误的原因是，由于两股数据同时写入一个文件，又没有使用特殊的语法， 此时两股数据可能会交叉写入该文件内，造成次序的错乱。
+
+## standard input ： < 与 <<
+> 以最简单的说法来说， 那就是『将原本需要由键盘输入的数据，改由文件内容来取代』的意思
+
+```tex?linenums
+# 用 stdin 取代键盘的输入以创建新文件的简单流程
+[zch@localhost ~]$ cat > list < .bashrc
+[zch@localhost ~]$ cat list
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+
+# User specific aliases and functions
 ```

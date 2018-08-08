@@ -1,5 +1,5 @@
 ---
-title: linux---shell那些事
+title: linux--shell那些事
 tags: linux,shell
 grammar_cjkRuby: true
 ---
@@ -222,3 +222,43 @@ alias which='alias | /usr/bin/which --tty-only --read-alias --show-dot --show-ti
 
 [zch@192 ~]$ unalias lm
 ```
+
+# Bash shell 的操作环境
+## 路径与命令搜寻顺序
+
+1. 以相对/绝对路径运行命令，例如『 /bin/ls 』或『 ./ls 』；
+2. 由 alias 找到该命令来运行；
+3. 由 bash 内建的 (builtin) 命令来运行；
+4. 透过 $PATH 这个变量的顺序搜寻到的第一个命令来运行。
+
+## bash 的环境配置文件
+### login 与 non-login shell
+在开始介绍 bash 的配置文件前，我们一定要先知道的就是 login shell 与 non-login shell！ 重点在于有没有登陆 (login) 啦！
+
+- login shell：取得 bash 时需要完整的登陆流程的，就称为 login shell。举例来说，你要由 tty1 ~ tty6 登陆，需要输入用户的账号与密码，此时取得的 bash 就称为『 login shell 』啰；
+- non-login shell：取得 bash 接口的方法不需要重复登陆的举动，举例来说，(1)你以 X window 登陆 Linux 后， 再以 X 的图形化接口启动终端机，此时那个终端接口并没有需要再次的输入账号与密码，那个 bash 的环境就称为 non-login shell了。(2)你在原本的 bash 环境下再次下达 bash 这个命令，同样的也没有输入账号密码， 那第二个 bash (子程序) 也是 non-login shell 。
+为什么要介绍 login, non-login shell 呢？这是因为这两个取得 bash 的情况中，读取的配置文件数据并不一样所致。 由于我们需要登陆系统，所以先谈谈 login shell 会读取哪些配置文件？一般来说，login shell 其实只会读取这两个配置文件：
+
+1. /etc/profile：这是系统整体的配置，你最好不要修改这个文件；
+2. ~/.bash_profile 或 ~/.bash_login 或 ~/.profile：属于使用者个人配置，你要改自己的数据，就写入这里！
+
+#### /etc/profile (login shell 才会读)
+你可以使用 vim 去阅读一下这个文件的内容。这个配置文件可以利用使用者的标识符 (UID) 来决定很多重要的变量数据， 这也是每个使用者登陆取得 bash 时一定会读取的配置文件！ 所以如果你想要帮所有使用者配置整体环境，那就是改这里啰！不过，没事还是不要随便改这个文件喔 这个文件配置的变量主要有：
+
+- PATH：会依据 UID 决定 PATH 变量要不要含有 sbin 的系统命令目录；
+- MAIL：依据账号配置好使用者的 mailbox 到 /var/spool/mail/账号名；
+- USER：根据用户的账号配置此一变量内容；
+- HOSTNAME：依据主机的 hostname 命令决定此一变量内容；
+- HISTSIZE：历史命令记录笔数。CentOS 5.x 配置为 1000 ；
+
+#### ~/.bash_profile (login shell 才会读)
+bash 在读完了整体环境配置的 /etc/profile 并藉此呼叫其他配置文件后，接下来则是会读取使用者的个人配置文件。 在 login shell 的 bash 环境中，所读取的个人偏好配置文件其实主要有三个，依序分别是：
+
+1. ~/.bash_profile
+2. ~/.bash_login
+3. ~/.profile
+
+![login shell 的配置文件读取流程](./images/1533697000141.jpg)
+
+#### ~/.bashrc (non-login shell 会读)
+

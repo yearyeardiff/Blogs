@@ -1,5 +1,5 @@
 ---
-title: linux---文件管理那些事
+title: linux--文件管理那些事
 tags: linux
 grammar_cjkRuby: true
 ---
