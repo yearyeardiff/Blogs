@@ -140,7 +140,7 @@ is_unique_in_array "${http_server_infos[@]}" "$server_name"
 
 
 # 一些实用的方法
-
+写脚本的时候写了一些工具方法，感觉挺好用的
 ```bash?linenums
 # 字符串是否匹配正则
 # 1 否；0 是
