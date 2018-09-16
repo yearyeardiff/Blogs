@@ -3,6 +3,8 @@ title: linux--命令那些事
 tags: linux
 grammar_cjkRuby: true
 ---
+
+
 # 常用命令
 - cd
 ``` tex?linenums
@@ -645,5 +647,226 @@ drwxr-xr-x. 2 zch zch   6 8月   8 09:53 模板
 上面这个例子是说：『我将 /home 里面的文件给他打包，但打包的数据不是纪录到文件，而是传送到 stdout； 经过管线后，将 tar -cvf - /home 传送给后面的 tar -xvf - 』。后面的这个 - 则是取用前一个命令的 stdout， 因此，我们就不需要使用 file 了！这是很常见的例子喔！注意注意！
 
  
+# 文件的格式化与相关处理
+参考：[文件的格式化与相关处理](http://cn.linux.vbird.org/linux_basic/0330regularex_4.php)
+
+## sed工具
+> sed 本身也是一个管线命令，可以分析 standard input 的啦！ 而且 sed 还可以将数据进行取代、删除、新增、撷取特定行等等的功能呢！
+
+```tex?linenums
+[root@www ~]# sed [-nefr] [动作]
+选项与参数：
+-n  ：使用安静(silent)模式。在一般 sed 的用法中，所有来自 STDIN 
+      的数据一般都会被列出到萤幕上。但如果加上 -n 参数后，则只有经过
+      sed 特殊处理的那一行(或者动作)才会被列出来。
+-e  ：直接在命令列模式上进行 sed 的动作编辑；
+-f  ：直接将 sed 的动作写在一个文件内， -f filename 则可以运行 filename 内的 
+      sed 动作；
+-r  ：sed 的动作支持的是延伸型正规表示法的语法。(默认是基础正规表示法语法)
+-i  ：直接修改读取的文件内容，而不是由萤幕输出。
+
+动作说明：  [n1[,n2]]function
+n1, n2 ：不见得会存在，一般代表『选择进行动作的行数』，举例来说，如果我的动作
+         是需要在 10 到 20 行之间进行的，则『 10,20[动作行为] 』
+
+function 有底下这些咚咚：
+a   ：新增， a 的后面可以接字串，而这些字串会在新的一行出现(目前的下一行)～
+c   ：取代， c 的后面可以接字串，这些字串可以取代 n1,n2 之间的行！
+d   ：删除，因为是删除啊，所以 d 后面通常不接任何咚咚；
+i   ：插入， i 的后面可以接字串，而这些字串会在新的一行出现(目前的上一行)；
+p   ：列印，亦即将某个选择的数据印出。通常 p 会与参数 sed -n 一起运行～
+s   ：取代，可以直接进行取代的工作哩！通常这个 s 的动作可以搭配
+      正规表示法！例如 1,20s/old/new/g 就是啦！
+```
+### 删除
+```tex?linenums
+[zch@172 linux_test]$ nl ll.log | sed '1,2d'
+     3	drwxrwxr-x. 2 zch zch  36 8月   8 11:30 linux_test
+     4	-rw-rw-r--. 1 zch zch 231 8月   8 13:44 list
+```
+### 新增
+
+``` tex?linenums
+[zch@172 linux_test]$ nl ll.log | sed '1a hello,world'
+     1	总用量 8
+hello,world
+     2	-rw-rw-r--. 1 zch zch  37 8月   8 11:30 error.log
+     3	drwxrwxr-x. 2 zch zch  36 8月   8 11:30 linux_test
+     4	-rw-rw-r--. 1 zch zch 231 8月   8 13:44 list
+```
+
+### 显示
+
+```tex?linenums
+[zch@172 linux_test]$ nl ll.log | sed -n '1,2p'
+     1	总用量 8
+     2	-rw-rw-r--. 1 zch zch  37 8月   8 11:30 error.log
+```
+### 部分数据的查找并替换功能
+>除了整行的处理模式之外， sed 还可以用行为单位进行部分数据的搜寻并取代的功能喔！ 基本上 sed 的搜寻与取代的与 vi 相当的类似！他有点像这样：
+
+```tex?linenums
+sed 's/要被取代的字串/新的字串/g'
+```
+
+- 举例1
+```tex?linenums
+步骤一：先观察原始信息，利用 /sbin/ifconfig  查询 IP 为何？
+[root@www ~]# /sbin/ifconfig eth0
+eth0      Link encap:Ethernet  HWaddr 00:90:CC:A6:34:84
+          inet addr:192.168.1.100  Bcast:192.168.1.255  Mask:255.255.255.0
+          inet6 addr: fe80::290:ccff:fea6:3484/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+.....(以下省略).....
+# 因为我们还没有讲到 IP ，这里你先有个概念即可啊！我们的重点在第二行，
+# 也就是 192.168.1.100 那一行而已！先利用关键字捉出那一行！
+
+步骤二：利用关键字配合 grep 撷取出关键的一行数据
+[root@www ~]# /sbin/ifconfig eth0 | grep 'inet addr'
+          inet addr:192.168.1.100  Bcast:192.168.1.255  Mask:255.255.255.0
+# 当场仅剩下一行！接下来，我们要将开始到 addr: 通通删除，就是像底下这样：
+# inet addr:192.168.1.100  Bcast:192.168.1.255  Mask:255.255.255.0
+# 上面的删除关键在於『 ^.*inet addr: 』啦！正规表示法出现！ ^_^
+
+步骤三：将 IP 前面的部分予以删除
+[root@www ~]# /sbin/ifconfig eth0 | grep 'inet addr' | \
+>  sed 's/^.*addr://g'
+192.168.1.100  Bcast:192.168.1.255  Mask:255.255.255.0
+# 仔细与上个步骤比较一下，前面的部分不见了！接下来则是删除后续的部分，亦即：
+# 192.168.1.100  Bcast:192.168.1.255  Mask:255.255.255.0
+# 此时所需的正规表示法为：『 Bcast.*$ 』就是啦！
+
+步骤四：将 IP 后面的部分予以删除
+[root@www ~]# /sbin/ifconfig eth0 | grep 'inet addr' | \
+>  sed 's/^.*addr://g' | sed 's/Bcast.*$//g'
+192.168.1.100
+```
+- 举例2
+
+```tex?linenums
+步骤一：先使用 grep 将关键字 MAN 所在行取出来
+[root@www ~]# cat /etc/man.config | grep 'MAN'
+# when MANPATH contains an empty substring), to find out where the cat
+# MANBIN                pathname
+# MANPATH               manpath_element [corresponding_catdir]
+# MANPATH_MAP           path_element    manpath_element
+# MANBIN                /usr/local/bin/man
+# Every automatically generated MANPATH includes these fields
+MANPATH /usr/man
+....(后面省略)....
+
+步骤二：删除掉注解之后的数据！
+[root@www ~]# cat /etc/man.config | grep 'MAN'| sed 's/#.*$//g'
 
 
+
+MANPATH /usr/man
+....(后面省略)....
+# 从上面可以看出来，原本注解的数据都变成空白行啦！所以，接下来要删除掉空白行
+
+[root@www ~]# cat /etc/man.config | grep 'MAN'| sed 's/#.*$//g' | \
+> sed '/^$/d'
+MANPATH /usr/man
+MANPATH /usr/share/man
+MANPATH /usr/local/man
+```
+### 直接修改文件内容(危险动作)
+
+```tex?linenums
+范例六：利用 sed 将 regular_express.txt 内每一行结尾若为 . 则换成 !
+[root@www ~]# sed -i 's/\.$/\!/g' regular_express.txt
+# 上头的 -i 选项可以让你的 sed 直接去修改后面接的文件内容而不是由萤幕输出喔！
+# 这个范例是用在取代！请您自行 cat 该文件去查阅结果罗！
+
+范例七：利用 sed 直接在 regular_express.txt 最后一行加入『# This is a test』
+[root@www ~]# sed -i '$a # This is a test' regular_express.txt
+# 由於 $ 代表的是最后一行，而 a 的动作是新增，因此该文件最后新增罗！
+```
+sed 的『 -i 』选项可以直接修改文件内容，这功能非常有帮助！举例来说，如果你有一个 100 万行的文件，你要在第 100 行加某些文字，此时使用 vim 可能会疯掉！因为文件太大了！那怎办？就利用 sed 啊！透过 sed 直接修改/取代的功能，你甚至不需要使用 vim 去修订！很棒吧！
+
+## awk
+>awk 也是一个非常棒的数据处理工具！相较於 sed 常常作用於一整个行的处理， awk 则比较倾向於一行当中分成数个『栏位』来处理。因此，awk 相当的适合处理小型的数据数据处理呢！awk 通常运行的模式是这样的：
+
+```tex?linenums
+[root@www ~]# awk '条件类型1{动作1} 条件类型2{动作2} ...' filename
+```
+>awk 后面接两个单引号并加上大括号 {} 来配置想要对数据进行的处理动作。 awk 可以处理后续接的文件，也可以读取来自前个命令的 standard output 。 但如前面说的， awk 主要是处理『每一行的栏位内的数据』，而默认的『栏位的分隔符号为 "空白键" 或 "[tab]键" 』！
+
+```tex?linenums
+[zch@172 linux_test]$ echo "1 2 3 4 5 6"|awk '{print $0}'
+1 2 3 4 5 6
+[zch@172 linux_test]$ echo "1 2 3 4 5 6"|awk '{print $1}'
+1
+
+```
+
+整个 awk 的处理流程是：
+
+1. 读入第一行，并将第一行的数据填入 $0, $1, $2.... 等变量当中；
+2. 依据 "条件类型" 的限制，判断是否需要进行后面的 "动作"；
+3. 做完所有的动作与条件类型；
+4. 若还有后续的『行』的数据，则重复上面 1~3 的步骤，直到所有的数据都读完为止。
+
+经过这样的步骤，你会晓得， awk 是『以行为一次处理的单位』， 而『以栏位为最小的处理单位』。好了，那么 awk 怎么知道我到底这个数据有几行？有几栏呢？这就需要 awk 的内建变量的帮忙啦～
+
+|变量名称|	代表意义|
+|---|---|--|
+|NF|	每一行 ($0) 拥有的栏位总数|
+|NR|	目前 awk 所处理的是『第几行』数据|
+|FS|	目前的分隔字节，默认是空白键|
+
+```tex?linenums
+[zch@172 linux_test]$ cat ll.log
+总用量 8
+-rw-rw-r--. 1 zch zch  37 8月   8 11:30 error.log
+drwxrwxr-x. 2 zch zch  36 8月   8 11:30 linux_test
+-rw-rw-r--. 1 zch zch 231 8月   8 13:44 list
+[zch@172 linux_test]$ cat ll.log | awk '{print $1 "\tline:" NR "\tcolumns:" NF}'
+总用量	line:1	columns:2
+-rw-rw-r--.	line:2	columns:9
+drwxrwxr-x.	line:3	columns:9
+-rw-rw-r--.	line:4	columns:9
+
+#分隔符
+[zch@172 linux_test]$ echo "1#2#3#4#"|awk 'BEGIN {FS="#"} {print $1 "\t " $3}'
+1	 3
+```
+### awk 的逻辑运算字节
+
+- 举例：
+第一行只是说明，所以第一行不要进行加总 (NR==1 时处理)；
+第二行以后就会有加总的情况出现 (NR>=2 以后处理)
+```tex?linenums
+[root@www ~]# cat pay.txt | \
+> awk 'NR==1{printf "%10s %10s %10s %10s %10s\n",$1,$2,$3,$4,"Total" }
+NR>=2{total = $2 + $3 + $4
+printf "%10s %10d %10d %10d %10.2f\n", $1, $2, $3, $4, total}'
+      Name        1st        2nd        3th      Total
+     VBird      23000      24000      25000   72000.00
+    DMTsai      21000      20000      23000   64000.00
+     Bird2      43000      42000      41000  126000.00
+```
+
+### awk当中使用外部变量
+>[awk当中使用外部变量](https://www.cnblogs.com/emanlee/p/3728440.html)
+
+1. awk命令使用双引号的情况下
+此时在awk命令里面使用`\"$var\"`就可以引用外部环境变量的var的值
+`$ var="BASH";echo "unix script"| awk "gsub(/unix/,\"$var\")"`
+2. awk命令使用单引号的情况下
+此时在awk命令里面使用`"'"$var"'"`就可以应用外部变量var的值，注意五个点表示两个双引号之间有一个单引号
+```
+$ var="BASH";echo "unix script"| awk 'gsub(/unix/, "'"$var"'")'
+BASH script
+```
+
+3. awk的参数-v  (推荐)
+这个没什么好解释的，应该是用得比较多的一种方法了，就是使用-v参数，加带一个变量极其赋值
+```
+1. $ echo "unix script"| awk -v var="BASH" 'gsub(/unix/, var)'
+BASH script
+
+
+2. awk –v a=111 –v b=222 '{print a,b}' yourfile.txt
+```
+注意, 对每一个变量加一个 –v 作传递.
