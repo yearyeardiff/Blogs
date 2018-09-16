@@ -1,0 +1,297 @@
+"------------------------------------------------------------------------------
+
+" Vundle
+
+"------------------------------------------------------------------------------
+
+" set the runtime path to include Vundle and initialize
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'flazz/vim-colorschemes'
+
+"""""""" vim scripts """"""""""""""""""
+Plugin 'vim-scripts/taglist.vim'
+Plugin 'vim-scripts/c.vim'
+Plugin 'vim-scripts/minibufexpl.vim'
+Plugin 'vim-scripts/comments.vim'
+Plugin 'vim-scripts/winmanager'
+
+"""""""" git script """""""""""""""""""
+Plugin 'scrooloose/nerdtree'
+" Plugin 'Valloric/YouCompleteMe'
+Plugin 'scrooloose/syntastic'
+Plugin 'Lokaltog/vim-powerline'
+""""""""代码折叠""""""""""""""""""""
+Plugin 'tmhedberg/SimpylFold'
+"""""""""添加git状态图标：nerdtree-git""""""""""""""""""
+Plugin 'Xuyuanp/nerdtree-git-plugin'  
+
+
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+filetype plugin indent on    " required
+" To ignore plugin indent changes, instead use:
+"filetype plugin on
+"
+" Brief help
+" :PluginList       - lists configured plugins
+" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
+" :PluginSearch foo - searches for foo; append `!` to refresh local cache
+" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
+"
+" see :h vundle for more details or wiki for FAQ
+" Put your non-Plugin stuff after this line
+
+
+"------------------------------------------------------------------------------
+" MiniBufExplorer
+"------------------------------------------------------------------------------
+let g:miniBufExplMapWindowNavVim = 1   
+let g:miniBufExplMapWindowNavArrows = 1   
+let g:miniBufExplMapCTabSwitchBufs = 1   
+let g:miniBufExplModSelTarget = 1  
+let g:miniBufExplMoreThanOne=0
+
+map <F11> :MBEbp<CR>
+map <F12> :MBEbn<CR>
+
+"------------------------------------------------------------------------------
+
+" nerdtree settings
+
+"------------------------------------------------------------------------------
+"使用F3键快速调出和隐藏它
+map <F3> :NERDTreeToggle<CR>
+let NERDTreeChDirMode=1
+"显示书签"
+let NERDTreeShowBookmarks=1
+"设置忽略文件类型"
+let NERDTreeIgnore=['\~$', '\.pyc$', '\.swp$']
+"窗口大小"
+let NERDTreeWinSize=25
+" 修改默认箭头
+let g:NERDTreeDirArrowExpandable = '▸'
+let g:NERDTreeDirArrowCollapsible = '▾'
+
+"How can I open a NERDTree automatically when vim starts up if no files were specified?
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+" 打开vim时自动打开NERDTree
+autocmd vimenter * NERDTree
+
+"How can I open NERDTree automatically when vim starts up on opening a directory?
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
+" 关闭vim时，如果打开的文件除了NERDTree没有其他文件时，它自动关闭，减少多次按:q!
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+
+" 开发的过程中，我们希望git信息直接在NERDTree中显示出来， 和Eclipse一样，修改的文件和增加的文件都给出相应的标注， 这时需要安装的插件就是 nerdtree-git-plugin,配置信息如下
+let g:NERDTreeIndicatorMapCustom = {
+    \ "Modified"  : "✹",
+    \ "Staged"    : "✚",
+    \ "Untracked" : "✭",
+    \ "Renamed"   : "➜",
+    \ "Unmerged"  : "═",
+    \ "Deleted"   : "✖",
+    \ "Dirty"     : "✗",
+    \ "Clean"     : "✔︎",
+    \ "Unknown"   : "?"
+    \ }
+" 显示行号
+let NERDTreeShowLineNumbers=1
+let NERDTreeAutoCenter=1
+
+" 在终端启动vim时，共享NERDTree
+let g:nerdtree_tabs_open_on_console_startup=1
+
+"------------------------------------------------------------------------------
+
+" ctags settings
+
+"------------------------------------------------------------------------------
+let Tlist_Ctags_Cmd ='/usr/local/Cellar/ctags/5.8_1/bin/ctags'
+
+"let g:molokai_original = 1
+"let g:rehash256 = 1
+"colorscheme molokai
+
+"------------------------------------------------------------------------------
+
+" syntastic setting
+
+"------------------------------------------------------------------------------
+let g:syntastic_check_on_open = 1
+let g:syntastic_lua_checkers = ['lua', 'luac']
+
+"------------------------------------------------------------------------------
+
+" Powerline setting
+
+"------------------------------------------------------------------------------
+set laststatus=2
+let g:Powerline_symbols='unicode'
+
+"set foldenable
+"set foldnestmax=1
+"set foldmethod=syntax
+
+"------------------------------------------------------------------------------
+
+" TagList :Tlist
+
+"------------------------------------------------------------------------------
+let Tlist_Use_Right_Window = 1          "让taglist窗口出现在Vim的右边
+let Tlist_File_Fold_Auto_Close = 1      "当同时显示多个文件中的tag时，设置为1，可使taglist只显示当前文件tag，其它文件的tag都被折叠起来。
+ 
+let Tlist_Show_One_File = 1             "只显示一个文件中的tag，默认为显示多个
+let Tlist_Sort_Type ='name'             "Tag的排序规则，以名字排序。默认是以在文件中出现的顺序排序
+ 
+let Tlist_GainFocus_On_ToggleOpen = 1       "Taglist窗口打开时，立刻切换为有焦点状态
+let Tlist_Exit_OnlyWindow = 1           "如果taglist窗口是最后一个窗口，则退出vim
+ 
+let Tlist_WinWidth = 32             "设置窗体宽度为32，可以根据自己喜好设置
+let Tlist_Ctags_Cmd='/usr/local/bin/ctags'  "这里比较重要了，设置ctags的位置，不是指向MacOS自带的那个，而是我们用homebrew安装的那个(brew install ctags-exuberant)
+
+map tl :TlistToggle<CR>              "热键设置，我设置成Leader+t来呼出和关闭Taglist
+
+"------------------------------------------------------------------------------
+
+" WinManager Setting
+
+"------------------------------------------------------------------------------
+"let g:NERDTree_title='NERD Tree'
+"let g:winManagerWindowLayout='NERDTree|TagList'
+"function! NERDTree_Start()
+"    exec 'NERDTree'
+"endfunction
+
+"function! NERDTree_IsValid()
+"    return 1
+"endfunction
+"
+"nmap wm :WMToggle<cr> 
+
+"------------------------------------------------------------------------------
+" SimpylFold
+"------------------------------------------------------------------------------
+
+" 必须手动输入za来折叠（和取消折叠）
+set foldmethod=indent                " 根据每行的缩进开启折叠
+set foldlevel=99
+
+" 使用空格键会是更好的选择,所以在你的配置文件中加上这一行命令吧：
+nnoremap <space> za
+" 希望看到折叠代码的文档字符串？
+let g:SimpylFold_docstring_preview=1
+
+"-------------------------------------------------------------------------------
+" vim doc
+"-------------------------------------------------------------------------------
+set helplang=cn 
+if version >= 603
+    set helplang=cn
+    set encoding=utf-8
+endif
+
+
+"------------------------------------------------------------------------------
+
+" settings
+
+"------------------------------------------------------------------------------
+set nocompatible            " be iMproved, required
+filetype off                " required
+
+" Set syntax highlighting for specific file types
+autocmd BufRead,BufNewFile *.md set filetype=markdown
+
+" color scheme
+colorscheme molokai
+
+
+" Backspace deletes like most programs in insert mode
+set backspace=2
+" Show the cursor position all the time
+set ruler
+" Display incomplete commands
+set showcmd
+" Set fileencodings
+set fileencodings=ucs-bom,utf-8,cp936,gb2312,gb18030,big5
+set background=dark
+set encoding=utf-8
+set fenc=utf-8
+set smartindent " 智能缩进
+set autoindent " 自动对齐
+set cul " 显示当前行
+set linespace=2 " 
+set showmatch " 显示匹配
+set hlsearch " 高亮查询匹配
+set lines=47 columns=90
+" set transparency=7
+
+" Numbers
+set number
+"set numberwidth=5
+
+" font and size
+"set guifont=Andale Mono:h14
+"set guifont=Monaco:h11
+set guifont=Menlo:h14
+
+" Softtabs, 4 spaces tab缩进
+set tabstop=4
+set shiftwidth=4
+set shiftround
+set softtabstop=4
+set expandtab
+set smarttab
+
+au BufNewFile,BufRead *.html, *.css set tabstop=2|set softtabstop=2|set shiftwidth=2
+
+" Display extra whitespace
+"set list listchars=tab:»·,trail:·
+"set list listchars=tab:-·,trail:·
+
+" Make it obvious where 80 characters is
+set textwidth=80
+set colorcolumn=+1
+
+" Highlight current line
+au WinLeave * set nocursorline
+au WinEnter * set cursorline
+set cursorline
+
+if has("gui_running")
+    set guioptions-=m
+    set guioptions-=T
+    set guioptions-=L
+    set guioptions-=r
+    set guioptions-=b
+    set showtabline=0
+endif
+
+if has('mouse')
+  set mouse=a
+endif
+
+if &t_Co > 2 || has("gui_running")
+syntax on
+endif
+
+" 指定屏幕上可以进行分割布局的区域
+set splitbelow               " 允许在下部分割布局
+set splitright               " 允许在右侧分隔布局
+
+" 组合快捷键：
+nnoremap <C-J> <C-W><C-J>    " 组合快捷键：- Ctrl-j 切换到下方的分割窗口
+nnoremap <C-K> <C-W><C-K>    " 组合快捷键：- Ctrl-k 切换到上方的分割窗口
+nnoremap <C-L> <C-W><C-L>    " 组合快捷键：- Ctrl-l 切换到右侧的分割窗口
+nnoremap <C-H> <C-W><C-H>    " 组合快捷键：- Ctrl-h 切换到左侧的分割窗口
+
