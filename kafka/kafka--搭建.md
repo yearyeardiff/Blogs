@@ -6,10 +6,12 @@ grammar_cjkRuby: true
 
 
 # 下载
-
+[zookeeper 下载](https://www.apache.org/dyn/closer.cgi/zookeeper/)
 [Kafka downloads](http://kafka.apache.org/downloads)
 
-# 启动zookeeper
+# 安装zookeeper
+
+## 单机服务
 -  启动zookeeper
 ```tex?linenums
 ~/software-dev/kafka_2.11-2.0.0/bin » ./zookeeper-server-start.sh ../config/zookeeper.properties
@@ -34,7 +36,15 @@ Mode: standalone
 Node count: 138
 Connection closed by foreign host.
 ```
-# 启动kafka
+
+## 群组服务
+
+
+### 参考
+[在本地模拟搭建zookeeper集群环境实例](https://www.cnblogs.com/baihaojie/p/6688358.html)
+[ZooKeeper 一台机器搭建集群](https://www.aliyun.com/jiaocheng/793335.html)
+
+# 安装kafka
 
 ## 创建并验证主题
 
