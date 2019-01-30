@@ -346,4 +346,5 @@ Found 1 deadlock.
 堆栈写的很明显，它告诉我们 Found one Java-level deadlock，然后指出造成死锁的两个线程的内容。然后，又通过 Java stack information for the threads listed above来显示更详细的死锁的信息。
 
 # 其他
-虚拟机执行Full GC时,会阻塞所有的用户线程。因此,即时获取到同步锁的线程也有可能被阻塞。 在查看线程Dump时,首先查看内存使用情况。
+1. 虚拟机执行Full GC时,会阻塞所有的用户线程。因此,即时获取到同步锁的线程也有可能被阻塞。 在查看线程Dump时,首先查看内存使用情况。
+2. 如果说系统慢，那么要特别关注Blocked,Waiting on condition；如果说系统的cpu耗的高，那么肯定是线程执行有死循环，那么此时要关注下Runable状态。

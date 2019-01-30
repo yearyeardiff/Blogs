@@ -63,10 +63,10 @@ where <option> is one of:
 
 `<no option> `如果使用不带选项参数的jmap打印共享对象映射，将会打印目标虚拟机中加载的每个共享对象的起始地址、映射大小以及共享对象文件的路径全称。这与Solaris的pmap工具比较相似。
 
-- `-dump:[live,]format=b,file=<filename>` 以hprof二进制格式转储Java堆到指定filename的文件中。live子选项是可选的。如果指定了live子选项，堆中只有活动的对象会被转储。想要浏览heap dump，你可以使用jhat(Java堆分析工具)读取生成的文件。
+- `-dump:[live,]format=b,file=<filename>` 以hprof二进制格式转储Java堆到指定filename的文件中。live子选项是可选的。如果指定了live子选项，堆中只有活动的对象会被转储。想要浏览heap dump，你可以使用jhat(Java堆分析工具)读取生成的文件。heap如果比较大的话，就会导致这个过程比较耗时，并且执行的过程中为了保证dump的信息是可靠的，所以会暂停应用。
 - -finalizerinfo 打印等待终结的对象信息。
 - -heap 打印一个堆的摘要信息，包括使用的GC算法、堆配置信息和generation wise heap usage。
-- -histo[:live] 打印堆的柱状图。其中包括每个Java类、对象数量、内存大小(单位：字节)、完全限定的类名。打印的虚拟机内部的类名称将会带有一个`*`前缀。如果指定了live子选项，则只计算活动的对象。
+- -histo[:live] 打印堆的柱状图。其中包括每个Java类、对象数量、内存大小(单位：字节)、完全限定的类名。打印的虚拟机内部的类名称将会带有一个`*`前缀。如果指定了live子选项，则只计算活动的对象，JVM会先触发gc，然后再统计信息。
 - -permstat 打印Java堆内存的永久保存区域的类加载器的智能统计信息。对于每个类加载器而言，它的名称、活跃度、地址、父类加载器、它所加载的类的数量和大小都会被打印。此外，包含的字符串数量和大小也会被打印。
 - -F 强制模式。如果指定的pid没有响应，请使用jmap -dump或jmap -histo选项。此模式下，不支持live子选项。
 - -h 打印帮助信息。
@@ -133,18 +133,56 @@ PS Perm Generation//当前的 “永生代” 内存分布
 
 ```
 bin$ jmap -histo 3331
-num     #instances         #bytes  class name
-编号     个数                字节     类名
+ num     #instances         #bytes  class name
 ----------------------------------------------
-   1:             7        1322080  [I
-   2:          5603         722368  <methodKlass>
-   3:          5603         641944  <constMethodKlass>
-   4:         34022         544352  java.lang.Integer
-   5:           371         437208  <constantPoolKlass>
-   6:           336         270624  <constantPoolCacheKlass>
-   7:           371         253816  <instanceKlassKlass>
+   1:         38445        5597736  <constMethodKlass>
+   2:         38445        5237288  <methodKlass>
+   3:          3500        3749504  <constantPoolKlass>
+   4:         60858        3242600  <symbolKlass>
+   5:          3500        2715264  <instanceKlassKlass>
+   6:          2796        2131424  <constantPoolCacheKlass>
+   7:          5543        1317400  [I
+   8:         13714        1010768  [C
+   9:          4752        1003344  [B
+  10:          1225         639656  <methodDataKlass>
+  11:         14194         454208  java.lang.String
+  12:          3809         396136  java.lang.Class
+  13:          4979         311952  [S
+  14:          5598         287064  [[I
+  15:          3028         266464  java.lang.reflect.Method
+  16:           280         163520  <objArrayKlassKlass>
+  17:          4355         139360  java.util.HashMap$Entry
+  18:          1869         138568  [Ljava.util.HashMap$Entry;
+  19:          2443          97720  java.util.LinkedHashMap$Entry
+  20:          2072          82880  java.lang.ref.SoftReference
+  21:          1807          71528  [Ljava.lang.Object;
+  22:          2206          70592  java.lang.ref.WeakReference
+  23:           934          52304  java.util.LinkedHashMap
+  24:           871          48776  java.beans.MethodDescriptor
+  25:          1442          46144  java.util.concurrent.ConcurrentHashMap$HashEntry
+  26:           804          38592  java.util.HashMap
+  27:           948          37920  java.util.concurrent.ConcurrentHashMap$Segment
+  28:          1621          35696  [Ljava.lang.Class;
+  29:          1313          34880  [Ljava.lang.String;
+  30:          1396          33504  java.util.LinkedList$Entry
+  31:           462          33264  java.lang.reflect.Field
+  32:          1024          32768  java.util.Hashtable$Entry
+  33:           948          31440  [Ljava.util.concurrent.ConcurrentHashMap$HashEntry;
 ```
 **jmap -histo:live 这个命令执行，JVM会先触发gc，然后再统计信息。**
+class name是对象类型，说明如下：
+```
+B  byte
+C  char
+D  double
+F  float
+I  int
+J  long
+Z  boolean
+[  数组，如[I表示int[]
+[L+类名 其他对象
+```
+
 
 - 将内存使用的详细情况输出到文件
 
@@ -168,3 +206,6 @@ bin$ jmap -dump:format=b,file=heapDump 6900
 在ubuntu中第一次使用jmap会报错：Error attaching to process: sun.jvm.hotspot.debugger.DebuggerException: Can't attach to the process，这是oracla文档中提到的一个bug:http://bugs.java.com/bugdatabase/view_bug.do?bug_id=7050524,解决方式如下：
 1. echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope 该方法在下次重启前有效。
 2. 永久有效方法 sudo vi /etc/sysctl.d/10-ptrace.conf 编辑下面这行: kernel.yama.ptrace_scope = 1 修改为: kernel.yama.ptrace_scope = 0 重启系统，使修改生效。
+
+# 参考
+1. [java命令--jmap命令使用](http://www.cnblogs.com/kongzhongqijing/articles/3621163.html)
