@@ -137,10 +137,35 @@ is_unique_in_array "${http_server_infos[@]}" "$server_name"
 
 - [利用Shell脚本循环读取文件中每一行的方法详解](https://www.jb51.net/article/122918.htm)
 
+# debug
 
+```
+[root@www ~]# sh [-nvx] scripts.sh
+选项与参数：
+-n  ：不要运行 script，仅查询语法的问题；
+-v  ：再运行 sccript 前，先将 scripts 的内容输出到萤幕上；
+-x  ：将使用到的 script 内容显示到萤幕上，这是很有用的参数！
 
+范例一：测试 sh16.sh 有无语法的问题？
+[root@www ~]# sh -n sh16.sh 
+# 若语法没有问题，则不会显示任何资讯！
+
+范例二：将 sh15.sh 的运行过程全部列出来～
+[root@www ~]# sh -x sh15.sh 
++ PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/root/bin
++ export PATH
++ for animal in dog cat elephant
++ echo 'There are dogs.... '
+There are dogs....
++ for animal in dog cat elephant
++ echo 'There are cats.... '
+There are cats....
++ for animal in dog cat elephant
++ echo 'There are elephants.... '
+There are elephants....
+```
 # 一些实用的方法
-
+写脚本的时候写了一些工具方法，感觉挺好用的
 ```bash?linenums
 # 字符串是否匹配正则
 # 1 否；0 是
