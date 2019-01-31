@@ -324,7 +324,8 @@ replica.fetch.max.bytes=5242880
 # zookeeper与kafka的关系
 [zookeeper在kafka中的作用](https://blog.csdn.net/dly1580854879/article/details/71403867)
 
-
+# kafka消息机制
+[kafka消息与同步机制](https://blog.csdn.net/wingofeagle/article/details/60965867)
 
 # 参考资料
 [在本地模拟搭建zookeeper集群环境实例](https://www.cnblogs.com/baihaojie/p/6688358.html)

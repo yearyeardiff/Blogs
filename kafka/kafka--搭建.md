@@ -37,13 +37,6 @@ Node count: 138
 Connection closed by foreign host.
 ```
 
-## 群组服务
-
-
-### 参考
-[在本地模拟搭建zookeeper集群环境实例](https://www.cnblogs.com/baihaojie/p/6688358.html)
-[ZooKeeper 一台机器搭建集群](https://www.aliyun.com/jiaocheng/793335.html)
-
 # 安装kafka
 
 ## 创建并验证主题
@@ -58,7 +51,7 @@ Created topic "test".
 - 验证主题
 往测试主题上发布消息 :
 ```tex?linenums
-~/software-dev/kafka_2.11-2.0.0/bin » ./kafka-console-producer.sh --broker-list localhost:9092 --topic test                                                                                                             zhangchenghao@zhangch
+~/software-dev/kafka_2.11-2.0.0/bin » ./kafka-console-producer.sh --broker-list localhost:9092 --topic test 
 >test message 1
 >test message 2
 >%
@@ -66,7 +59,7 @@ Created topic "test".
 
 从测试主题上读取消息:
 ```tex?linenums
-~/software-dev/kafka_2.11-2.0.0/bin » ./kafka-console-consumer.sh  --topic test --from-beginning --bootstrap-server localhost:9092                                                                                      zhangchenghao@zhangch
+~/software-dev/kafka_2.11-2.0.0/bin » ./kafka-console-consumer.sh  --topic test --from-beginning --bootstrap-server localhost:9092
 test message 1
 test message 2
 ```
