@@ -4,7 +4,7 @@ tags: configserver
 grammar_cjkRuby: true
 ---
 
-# 消费kafka消息
+# 消费消息
 ![refresh1](./images/configserver-refresh-1.jpg)
 
 # 配置刷新的过程
