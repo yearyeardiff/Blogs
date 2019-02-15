@@ -4,5 +4,4 @@ tags: spring,ioc
 grammar_cjkRuby: true
 ---
 
-![enter description here]( ./images/spring%20ioc--getBean.jpg)
-
+![enter description here](./images/spring%20ioc--getBean_1.jpg )
