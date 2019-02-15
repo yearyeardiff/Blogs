@@ -1,5 +1,5 @@
 ---
-title: spring ioc--FactoryBean
+title: spring--ioc FactoryBean
 tags: spring,ioc
 grammar_cjkRuby: true
 ---
