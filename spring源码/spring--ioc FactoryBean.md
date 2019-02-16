@@ -348,3 +348,6 @@ protected void loadProperties(Properties props) throws IOException {
 最后通过PropertiesLoaderUtils.fillProperties方法读取配置文件的输入流加载到Properties对象中。
 
 通过源码看起来PropertiesFactoryBean的实现比较简单，首先实现InitializingBean接口，再bean初始化时加载资源，当调用FactoryBean的getObject方法时将加载完的Properties对象返回。**其实大部分的FactoryBean的子类都是通过此种方式来完成和spring的对接，先是在初始化时处理准备工作，然后在getObject调用时返回真正的bean实例对象。**而FactoryBean作为Spring的重要扩展之一，其实现方式如此简单，真的值得好好学习。
+
+# 参考
+转自：[Spring源码-IOC容器(四)-FactoryBean](https://my.oschina.net/u/2377110/blog/918659)
