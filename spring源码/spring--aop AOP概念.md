@@ -73,4 +73,5 @@ AOP中文翻译为面向方面编程或面向切面编程，维基百科对它�
 而对于AOP的具体实现，Spring AOP默认使用JDK的动态代理来代理接口。而对于没有实现接口的类，或非接口中的方法，则通过CGLIB来实现代理。**通过Advisor封装Advice和Pointcut并初始化成拦截器链，当方法调用请求时，匹配其所围绕的所有Advisor，然后按顺序执行，从而达到面向切面编程的核心，分离出横切关注点进行统一配置与管理**。具体的实现方式将在之后的章节里详细介绍。
 
 # 参考
+这篇文章写得很好：[AOP 那点事儿（续集）](https://my.oschina.net/huangyong/blog/161402)
 转自：[Spring源码-AOP(二)-AOP概念 ](https://my.oschina.net/u/2377110/blog/1506098)
